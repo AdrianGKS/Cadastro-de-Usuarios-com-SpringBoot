@@ -5,8 +5,16 @@
     <title>Title</title>
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/css/bootstrap.min.css">
+
+    <style type="text/css">
+        html {
+            margin-left: 5%;
+            margin-right: 5%;
+            margin-top: 5%;
+        }
+
+    </style>
 </head>
 <body>
 <h3>Spring Boot Rest API CRUD Completo JDev Treinamento é</h3>
@@ -27,23 +35,153 @@
 </form>
 
 <button type="button" class="btn btn-primary" onclick="salvarUsuario()">Salvar</button>
+<button type="button" class="btn btn-secondary" onclick="document.getElementById('formUserRegistration').reset();">Novo</button>
+<button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalPesquisaUser">Pesquisar</button>
+<button type="button" class="btn btn-warning" onclick="botaoDeletar()">Deletar</button>
 
-<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-<!-- Optional JavaScript; choose one of the two! -->
+<div class="modal fade" id="modalPesquisaUser" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Pesquisa de Usuário:</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="nameBusca" class="col-form-label">Informe o nome:</label>
+                        <input type="text" class="form-control" id="nameBusca">
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="pesquisarUser()">Buscar</button>
+                </form>
 
-<!-- Option 1: Bootstrap Bundle with Popper -->
+                <div style="height: 300px; overflow: scroll">
+                <table class="table" id="tabelaResultados">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Editar</th>
+                            <th scope="col">Deletar</th>
 
-<!-- Option 2: Separate Popper and Bootstrap JS -->
-<!--
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
--->
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 
 <script type="text/javascript">
+
+    function botaoDeletar() {
+        var id = $('#id').val();
+
+        if (id != null && id.trim() != ''){
+            deleteUsuario(id);
+            document.getElementById('formUserRegistration').reset();
+        }
+    }
+
+    function deleteUsuario(id) {
+        if (confirm('Deseja realmente deletar?'))
+
+        $.ajax({
+            method: "DELETE",
+            url: "delete",
+            data: "idUser=" + id,
+            success: function (response) {
+                $('#'+id).remove();
+
+                alert(response);
+            }
+        }).fail(function (xhr, status, errorThrown) { //texto, status e erro
+            alert("Erro ao deletar usuário por ID: " + xhr.responseText);
+        });
+    }
+    
+    function pesquisarUser() {
+        var name =  $('#nameBusca').val();
+
+        if (name != null && name.trim() != ''){
+            $.ajax({
+                method: "GET",
+                url: "searchUserByName",
+                data: "name=" + name,
+                success: function (response) {
+                    $('#tabelaResultados > tbody > tr').remove();
+
+                    for (var i = 0; i < response.length; i++) {
+                        $('#tabelaResultados > tbody').append('<tr id="'+ response[i].id +'"><td>'+ response[i].id +'</td><td>'+ response[i].name+'</td><td><button type="button" onclick="colocarEmEdicao('+response[i].id+')" class="btn btn-primary">Ver</button></td><td><button type="button" class="btn btn-danger" onclick="deleteUsuario('+ response[i].id+')">Deletar</button></td></tr>');
+                    }
+                }
+            }).fail(function (xhr, status, errorThrown) { //texto, status e erro
+                alert("Erro ao buscar usuário: " + xhr.responseText);
+            });
+        }
+    }
+
+    function colocarEmEdicao(id) {
+
+        $.ajax({
+            method: "GET",
+            url: "searchUserById",
+            data: "idUser=" + id,
+            success: function (response) {
+
+                $("#id").val(response.id);
+                $("#name").val(response.name);
+                $("#idade").val(response.idade);
+                $('#modalPesquisaUser').modal.hide();
+
+            }
+        }).fail(function (xhr, status, errorThrown) { //texto, status e erro
+            alert("Erro ao buscar usuário por ID: " + xhr.responseText);
+        });
+    }
+
     function salvarUsuario() {
         var id = $("#id").val();
         var name = $("#name").val();
-        var idade = $("idade").val();
+        var idade = $("#idade").val();
+
+        if (name == null || name != null && name.trim() == '') {
+            $("#name").focus();
+            alert('Informe o nome!');
+            return;
+        }
+        if (idade == null || idade != null && idade.trim() == '') {
+            $("#idade").focus();
+            alert('Informe a idade!');
+            return;
+        }
+
+            $.ajax({
+                method: "POST",
+                url: "save",
+                data: JSON.stringify({id : id, name : name, idade : idade}),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+
+                    $("#id").val(response.id);
+                    alert("Salvo com sucesso!");
+                }
+            }).fail(function (xhr, status, errorThrown) { //texto, status e erro
+                alert("Erro ao salvar usuário: " + xhr.responseText);
+            });
     }
 </script>
 </body>
