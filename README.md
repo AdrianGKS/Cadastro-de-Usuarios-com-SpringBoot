@@ -1,4 +1,4 @@
-# Cadastro de Usuarios com SpringBoot
+# Cadastro de Usuarios com Spring Boot e Interface jQuery
 Criação de CRUD básico em Spring Boot com integração de interface Front-End utilizando jQuery.
 ## Conhecimentos Aplicados
 - Model e Tabela de banco
